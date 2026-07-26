@@ -1,0 +1,6 @@
+{
+  "name": "Oficios Cristianos",
+  "description": "Plataforma comunitaria de oficios y servicios basados en la confianza, valores y economía colaborativa en Argentina.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

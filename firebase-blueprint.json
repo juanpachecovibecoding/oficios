@@ -1,0 +1,62 @@
+{
+  "projectInfo": {
+    "name": "Oficios Cristianos",
+    "description": "Plataforma comunitaria de oficios y servicios basados en confianza en Argentina."
+  },
+  "collections": [
+    {
+      "name": "users",
+      "description": "Store profiles for all users including admins, professionals, and clients.",
+      "securityRules": {
+        "read": "request.auth != null",
+        "create": "request.auth != null && request.auth.uid == resource.id",
+        "update": "request.auth != null && (request.auth.uid == resource.id || request.auth.token.email == 'juanpacheco@playcode.com.ar')",
+        "delete": "request.auth != null && request.auth.token.email == 'juanpacheco@playcode.com.ar'"
+      },
+      "fields": [
+        { "name": "uid", "type": "string", "description": "Firebase Auth UID" },
+        { "name": "email", "type": "string", "description": "User email address" },
+        { "name": "displayName", "type": "string", "description": "Full name" },
+        { "name": "photoURL", "type": "string", "description": "Profile photo URL" },
+        { "name": "role", "type": "string", "description": "User role: admin, professional, client" },
+        { "name": "status", "type": "string", "description": "Account status: pending, active, rejected" },
+        { "name": "phone", "type": "string", "description": "WhatsApp contact number" },
+        { "name": "specialty", "type": "string", "description": "Job specialty (e.g., Electricidad, Plomería)" },
+        { "name": "address", "type": "string", "description": "Base address" },
+        { "name": "lat", "type": "number", "description": "Latitude" },
+        { "name": "lng", "type": "number", "description": "Longitude" },
+        { "name": "church", "type": "string", "description": "Church/Community name" },
+        { "name": "yearsLinked", "type": "number", "description": "Years linked to community" },
+        { "name": "referenceName", "type": "string", "description": "Name of reference" },
+        { "name": "referencePhone", "type": "string", "description": "Phone of reference" },
+        { "name": "agreedToEthics", "type": "boolean", "description": "Signed Code of Ethics" },
+        { "name": "hours", "type": "string", "description": "Working hours" },
+        { "name": "modality", "type": "string", "description": "A domicilio / Taller propio" },
+        { "name": "coverageRadius", "type": "number", "description": "Coverage radius in km" },
+        { "name": "rating", "type": "number", "description": "Average rating" },
+        { "name": "reviewCount", "type": "number", "description": "Total reviews count" }
+      ]
+    },
+    {
+      "name": "reviews",
+      "description": "Reviews left by clients for professionals.",
+      "securityRules": {
+        "read": "request.auth != null",
+        "create": "request.auth != null",
+        "update": "request.auth != null && request.auth.uid == resource.data.reviewerId",
+        "delete": "request.auth != null && (request.auth.uid == resource.data.reviewerId || request.auth.token.email == 'juanpacheco@playcode.com.ar')"
+      },
+      "fields": [
+        { "name": "professionalId", "type": "string", "description": "ID of the professional being reviewed" },
+        { "name": "reviewerId", "type": "string", "description": "ID of the client writing the review" },
+        { "name": "reviewerName", "type": "string", "description": "Name of the reviewer" },
+        { "name": "technicalScore", "type": "number", "description": "Score 1-5 for Technical Excellence" },
+        { "name": "punctualityScore", "type": "number", "description": "Score 1-5 for Punctuality/Cleanliness" },
+        { "name": "respectScore", "type": "number", "description": "Score 1-5 for Respectful treatment" },
+        { "name": "overallScore", "type": "number", "description": "Average of the three scores" },
+        { "name": "comment", "type": "string", "description": "Review text" },
+        { "name": "createdAt", "type": "timestamp", "description": "Time the review was created" }
+      ]
+    }
+  ]
+}

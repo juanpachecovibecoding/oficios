@@ -1,0 +1,34 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/forms";
+
+@theme {
+  --font-serif: "Cormorant Garamond", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-brand-blue-50: #f4f6fa;
+  --color-brand-blue-100: #e5eaf2;
+  --color-brand-blue-600: #1b3b6f;
+  --color-brand-blue-700: #142d54;
+  --color-brand-blue-900: #0a1931;
+  --color-brand-blue-950: #050c1a;
+  
+  --color-brand-gold-50: #faf7f2;
+  --color-brand-gold-100: #f2ebd9;
+  --color-brand-gold-200: #e3d2b1;
+  --color-brand-gold-500: #b89c6d;
+  --color-brand-gold-600: #9e8052;
+  --color-brand-gold-700: #7d633e;
+  --color-brand-gold-900: #42331f;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #fcfdfe;
+}
+
+/* Custom leaflet map adjustments for beautiful curves */
+.leaflet-container {
+  border-radius: 1rem;
+  font-family: var(--font-sans) !important;
+}
+
