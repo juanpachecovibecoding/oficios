@@ -20,8 +20,10 @@ service cloud.firestore {
 
     // ─── Usuarios ────────────────────────────────────────────────────────────
     match /users/{userId} {
-      // Solo usuarios autenticados pueden leer perfiles (cierra la exposición masiva de PII)
-      allow read: if isAuthenticated();
+      // Permitir leer perfiles si están activos (necesario para el mapa público y el buscador)
+      // o si el usuario está autenticado (para ver perfiles en revisión o los suyos propios).
+      allow read: if resource.data.status == 'active' 
+        || (isAuthenticated() && (request.auth.uid == userId || isSuperAdmin()));
 
       // Crear: únicamente el propio usuario; el rol debe ser client/professional
       // y el estado inicial siempre es "pending" (nunca puede auto-activarse)
@@ -46,8 +48,8 @@ service cloud.firestore {
 
     // ─── Reseñas ─────────────────────────────────────────────────────────────
     match /reviews/{reviewId} {
-      // Solo usuarios autenticados pueden leer reseñas
-      allow read: if isAuthenticated();
+      // Las reseñas son públicas para que los visitantes puedan ver la reputación de los profesionales
+      allow read: if true;
 
       // Crear: el usuario autenticado debe ser el reviewer,
       // los puntajes deben estar entre 1 y 5,
