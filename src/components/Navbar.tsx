@@ -37,7 +37,7 @@ export function Navbar() {
           </div>
           <div className="hidden md:flex items-center space-x-6">
             <Link to="/map" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Mapa de Cercanía</Link>
-            <Link to="/vision" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Visión & Ofrendar</Link>
+            <Link to="/vision" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Misión</Link>
             {currentUser ? (
               <div className="flex items-center space-x-4">
                 <Link to="/dashboard" className="text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">Mi Panel</Link>
@@ -79,7 +79,7 @@ export function Navbar() {
       <div className={cn("md:hidden", isOpen ? "block" : "hidden")}>
         <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t border-slate-100 shadow-inner">
           <Link to="/map" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-md">Mapa de Cercanía</Link>
-          <Link to="/vision" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-md">Visión & Ofrendar</Link>
+          <Link to="/vision" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-md">Misión</Link>
           {currentUser ? (
             <>
               <Link to="/dashboard" onClick={() => setIsOpen(false)} className="block px-3 py-2 text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-md">Mi Panel</Link>
