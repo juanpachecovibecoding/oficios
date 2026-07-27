@@ -7,7 +7,7 @@ import { PlaceResult } from '../types';
 const OFICIOS = [
   'Electricidad', 'Plomería', 'Gasista Matriculado', 'Carpintería',
   'Pintura', 'Refrigeración', 'Costura', 'Jardinería', 'Albañilería',
-  'Herrería', 'Limpieza', 'Cuidado de Ancianos', 'Niñera', 'Informática'
+  'Herrería', 'Limpieza', 'Cuidado de Ancianos', 'Niñera', 'Maestra Particular', 'Informática'
 ];
 
 export function HeroSearch() {
