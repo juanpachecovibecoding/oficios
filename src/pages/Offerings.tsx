@@ -93,7 +93,7 @@ export function Offerings() {
             <span className="text-[10px] bg-brand-gold-50 text-brand-gold-700 border border-brand-gold-200 px-2 py-0.5 rounded font-bold uppercase tracking-wider">Sostenimiento</span>
             <h3 className="text-lg font-bold text-brand-blue-900 mt-2 mb-3">Sustentabilidad y Alianza</h3>
             <p className="text-slate-600 text-xs leading-relaxed mb-4">
-              El 70% se aplica a la infraestructura tecnológica y validación pastoral de los perfiles. El 30% nutre un fondo solidario de herramientas para profesionales con escasos recursos.
+              El 70% se aplica a la infraestructura tecnológica y validación pastoral de los perfiles. El 30% nutre un fondo para acompañar con capacitaciones y cursos de tecnología a la comunidad de profesionales.
             </p>
           </div>
         </div>
