@@ -8,7 +8,7 @@
       "name": "users",
       "description": "Store profiles for all users including admins, professionals, and clients.",
       "securityRules": {
-        "read": "request.auth != null",
+        "read": "true",
         "create": "request.auth != null && request.auth.uid == resource.id",
         "update": "request.auth != null && (request.auth.uid == resource.id || request.auth.token.email == 'juanpacheco@playcode.com.ar')",
         "delete": "request.auth != null && request.auth.token.email == 'juanpacheco@playcode.com.ar'"
@@ -34,14 +34,15 @@
         { "name": "modality", "type": "string", "description": "A domicilio / Taller propio" },
         { "name": "coverageRadius", "type": "number", "description": "Coverage radius in km" },
         { "name": "rating", "type": "number", "description": "Average rating" },
-        { "name": "reviewCount", "type": "number", "description": "Total reviews count" }
+        { "name": "reviewCount", "type": "number", "description": "Total reviews count" },
+        { "name": "portfolio", "type": "array", "description": "Array of portfolio image URLs" }
       ]
     },
     {
       "name": "reviews",
       "description": "Reviews left by clients for professionals.",
       "securityRules": {
-        "read": "request.auth != null",
+        "read": "true",
         "create": "request.auth != null",
         "update": "request.auth != null && request.auth.uid == resource.data.reviewerId",
         "delete": "request.auth != null && (request.auth.uid == resource.data.reviewerId || request.auth.token.email == 'juanpacheco@playcode.com.ar')"

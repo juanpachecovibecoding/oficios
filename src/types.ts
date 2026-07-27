@@ -30,6 +30,16 @@ export interface UserProfile {
   rating?: number;
   reviewCount?: number;
   portfolio?: string[]; // array of image urls
+  bannerURL?: string;
+  beforeAfterProjects?: BeforeAfterProject[];
+}
+
+export interface BeforeAfterProject {
+  id: string;
+  title: string;
+  beforeURL: string;
+  afterURL: string;
+  createdAt: string;
 }
 
 export interface Review {
