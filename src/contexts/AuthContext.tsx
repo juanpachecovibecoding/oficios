@@ -9,6 +9,8 @@ interface AuthContextType {
   userProfile: UserProfile | null;
   loading: boolean;
   refreshProfile: () => Promise<void>;
+  isLoginModalOpen: boolean;
+  setIsLoginModalOpen: (open: boolean) => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -16,6 +18,8 @@ const AuthContext = createContext<AuthContextType>({
   userProfile: null,
   loading: true,
   refreshProfile: async () => {},
+  isLoginModalOpen: false,
+  setIsLoginModalOpen: () => {},
 });
 
 export function useAuth() {
@@ -26,6 +30,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const refreshProfile = async () => {
     if (auth.currentUser) {
@@ -61,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ currentUser, userProfile, loading, refreshProfile }}>
+    <AuthContext.Provider value={{ currentUser, userProfile, loading, refreshProfile, isLoginModalOpen, setIsLoginModalOpen }}>
       {!loading && children}
     </AuthContext.Provider>
   );

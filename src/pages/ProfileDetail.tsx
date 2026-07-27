@@ -74,7 +74,7 @@ const PRESET_BANNERS = [
 
 export function ProfileDetail() {
   const { id } = useParams<{ id: string }>();
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, userProfile, setIsLoginModalOpen } = useAuth();
   const [pro, setPro] = useState<UserProfile | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -328,10 +328,10 @@ export function ProfileDetail() {
           
           {!currentUser ? (
             <div className="pt-4 space-y-4">
-              <p className="text-xs text-slate-500 font-medium">Por favor, inicia sesión con tu cuenta de Google y completa tu perfil:</p>
+               <p className="text-xs text-slate-500 font-medium">Por favor, inicia sesión con tu cuenta de Google y completa tu perfil:</p>
               <button
                 onClick={() => {
-                  window.location.href = '/dashboard';
+                  setIsLoginModalOpen(true);
                 }}
                 className="inline-flex items-center gap-2 bg-brand-blue-900 hover:bg-brand-blue-950 text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all cursor-pointer text-sm"
               >

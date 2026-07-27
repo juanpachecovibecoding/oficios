@@ -7,9 +7,8 @@ import { Menu, X, HeartHandshake, Hammer, Paintbrush } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function Navbar() {
-  const { currentUser, userProfile } = useAuth();
+  const { currentUser, userProfile, isLoginModalOpen, setIsLoginModalOpen } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   const handleLogin = async () => {
     try {
