@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase';
-import { collection, query, getDocs, doc, updateDoc, where } from 'firebase/firestore';
+import { collection, query, getDocs, doc, updateDoc, deleteDoc, where } from 'firebase/firestore';
 import { UserProfile } from '../types';
 import { 
   CheckCircle, 
@@ -13,7 +13,9 @@ import {
   ShieldCheck, 
   User, 
   CheckSquare, 
-  Sliders
+  Sliders,
+  Edit,
+  Trash2
 } from 'lucide-react';
 
 export function AdminPanel() {
@@ -28,6 +30,7 @@ export function AdminPanel() {
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
 
   const isSuperAdmin = currentUser?.email === 'juanpacheco@playcode.com.ar';
   const isAdmin = userProfile?.role === 'admin' || isSuperAdmin;
@@ -132,6 +135,40 @@ export function AdminPanel() {
     } catch (e) {
       console.error(e);
       alert("Error al actualizar estado");
+    }
+  };
+
+  const handleDeleteUser = async (uid: string) => {
+    if (!window.confirm("¿Estás seguro de que deseas eliminar permanentemente este usuario de la plataforma? Esta acción no se puede deshacer.")) {
+      return;
+    }
+    try {
+      await deleteDoc(doc(db, 'users', uid));
+      setAllUsers(prev => prev.filter(u => u.uid !== uid));
+      setPendingUsers(prev => prev.filter(u => u.uid !== uid));
+      alert("Usuario eliminado correctamente.");
+    } catch (e) {
+      console.error(e);
+      alert("Error al eliminar el usuario.");
+    }
+  };
+
+  const handleSaveEditUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingUser) return;
+    
+    try {
+      const { uid, ...updateData } = editingUser;
+      await updateDoc(doc(db, 'users', uid), updateData);
+      
+      setAllUsers(prev => prev.map(u => u.uid === uid ? { ...u, ...updateData } : u));
+      setPendingUsers(prev => prev.map(u => u.uid === uid ? { ...u, ...updateData } : u));
+      
+      alert("Usuario actualizado correctamente.");
+      setEditingUser(null);
+    } catch (e) {
+      console.error(e);
+      alert("Error al guardar los cambios del usuario.");
     }
   };
 
@@ -474,11 +511,25 @@ export function AdminPanel() {
                           <td className="p-4 text-right pr-6">
                             {!isCurrentUserObj && !isSuperadminAccount && (
                               <div className="flex justify-end gap-1.5">
+                                <button
+                                  onClick={() => setEditingUser(user)}
+                                  title="Editar perfil"
+                                  className="p-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg transition-all cursor-pointer border border-blue-100 animate-fade-in"
+                                >
+                                  <Edit className="w-4 h-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteUser(user.uid)}
+                                  title="Eliminar usuario permanentemente"
+                                  className="p-1.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg transition-all cursor-pointer border border-red-100 animate-fade-in"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
                                 {user.status !== 'active' && (
                                   <button
                                     onClick={() => handleApprove(user.uid)}
                                     title="Activar cuenta"
-                                    className="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg transition-all cursor-pointer border border-emerald-100"
+                                    className="p-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg transition-all cursor-pointer border border-emerald-100 animate-fade-in"
                                   >
                                     <CheckCircle className="w-4 h-4" />
                                   </button>
@@ -487,7 +538,7 @@ export function AdminPanel() {
                                   <button
                                     onClick={() => handleReject(user.uid)}
                                     title="Desactivar o rechazar cuenta"
-                                    className="p-1.5 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg transition-all cursor-pointer border border-red-100"
+                                    className="p-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg transition-all cursor-pointer border border-amber-100 animate-fade-in"
                                   >
                                     <XCircle className="w-4 h-4" />
                                   </button>
@@ -505,6 +556,188 @@ export function AdminPanel() {
                 </table>
               </div>
             )}
+          </div>
+        </div>
+      )}
+      {/* EDIT USER MODAL */}
+      {editingUser && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="px-6 py-5 border-b border-slate-200 bg-slate-50 flex items-center justify-between sticky top-0 z-10">
+              <div>
+                <h3 className="font-sans font-extrabold text-slate-900 text-lg">Editar Perfil de la Comunidad</h3>
+                <p className="text-xs text-slate-500">Modifica los datos del usuario: {editingUser.displayName}</p>
+              </div>
+              <button
+                onClick={() => setEditingUser(null)}
+                className="text-slate-400 hover:text-slate-600 font-bold text-2xl p-1 cursor-pointer"
+              >
+                &times;
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditUser} className="p-6 space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Nombre */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Nombre Completo</label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                    value={editingUser.displayName || ''}
+                    onChange={e => setEditingUser({ ...editingUser, displayName: e.target.value })}
+                  />
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Correo Electrónico (Leído de Google)</label>
+                  <input
+                    type="email"
+                    disabled
+                    className="w-full rounded-xl border border-slate-200 shadow-xs text-sm py-2.5 px-3 bg-slate-100 text-slate-500 cursor-not-allowed"
+                    value={editingUser.email || ''}
+                  />
+                </div>
+
+                {/* Teléfono */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">WhatsApp / Celular</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                    value={editingUser.phone || ''}
+                    onChange={e => setEditingUser({ ...editingUser, phone: e.target.value })}
+                  />
+                </div>
+
+                {/* Dirección */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Dirección</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                    value={editingUser.address || ''}
+                    onChange={e => setEditingUser({ ...editingUser, address: e.target.value })}
+                  />
+                </div>
+
+                {/* Iglesia */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Iglesia de Pertenencia</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                    value={editingUser.church || ''}
+                    onChange={e => setEditingUser({ ...editingUser, church: e.target.value })}
+                  />
+                </div>
+
+                {/* Años vinculados */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Años vinculados</label>
+                  <input
+                    type="number"
+                    min="0"
+                    className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                    value={editingUser.yearsLinked || 0}
+                    onChange={e => setEditingUser({ ...editingUser, yearsLinked: parseInt(e.target.value) || 0 })}
+                  />
+                </div>
+
+                {/* Referente Espiritual */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Referente Espiritual (Nombre)</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                    value={editingUser.referenceName || ''}
+                    onChange={e => setEditingUser({ ...editingUser, referenceName: e.target.value })}
+                  />
+                </div>
+
+                {/* Teléfono Referente */}
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Teléfono Referente</label>
+                  <input
+                    type="text"
+                    className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                    value={editingUser.referencePhone || ''}
+                    onChange={e => setEditingUser({ ...editingUser, referencePhone: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              {/* Si es Profesional, mostrar más campos */}
+              {editingUser.role === 'professional' && (
+                <div className="border-t border-slate-100 pt-4 space-y-4">
+                  <h4 className="text-xs font-extrabold text-slate-400 uppercase tracking-widest">Datos Profesionales</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Especialidad / Oficio</label>
+                      <input
+                        type="text"
+                        className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                        value={editingUser.specialty || ''}
+                        onChange={e => setEditingUser({ ...editingUser, specialty: e.target.value })}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Modalidad de Servicio</label>
+                      <select
+                        className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                        value={editingUser.modality || 'A domicilio'}
+                        onChange={e => setEditingUser({ ...editingUser, modality: e.target.value })}
+                      >
+                        <option value="A domicilio">A domicilio</option>
+                        <option value="Taller propio">Taller propio</option>
+                        <option value="Ambos">Ambos</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Radio de Cobertura (km)</label>
+                      <input
+                        type="number"
+                        min="1"
+                        className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                        value={editingUser.coverageRadius || 5}
+                        onChange={e => setEditingUser({ ...editingUser, coverageRadius: parseInt(e.target.value) || 0 })}
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">URL Video Presentación (YouTube)</label>
+                    <input
+                      type="text"
+                      className="w-full rounded-xl border border-slate-300 shadow-xs focus:ring-brand-blue-600 focus:border-brand-blue-600 text-sm py-2.5 px-3 bg-white"
+                      value={editingUser.videoURL || ''}
+                      onChange={e => setEditingUser({ ...editingUser, videoURL: e.target.value })}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="flex justify-end gap-3 border-t border-slate-100 pt-5">
+                <button
+                  type="button"
+                  onClick={() => setEditingUser(null)}
+                  className="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl tracking-wider uppercase transition-colors cursor-pointer"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 bg-brand-blue-900 hover:bg-brand-blue-950 text-white text-xs font-bold rounded-xl tracking-wider uppercase shadow-xs transition-colors cursor-pointer"
+                >
+                  Guardar Cambios
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

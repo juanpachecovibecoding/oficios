@@ -112,6 +112,7 @@ export function Dashboard() {
 
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
+    displayName: '',
     phone: '',
     specialty: OFICIOS[0],
     address: '',
@@ -198,6 +199,7 @@ export function Dashboard() {
   const startEditing = () => {
     if (userProfile) {
       setEditForm({
+        displayName: userProfile.displayName || currentUser?.displayName || '',
         phone: userProfile.phone || '',
         specialty: userProfile.specialty || OFICIOS[0],
         address: userProfile.address || '',
@@ -565,6 +567,17 @@ export function Dashboard() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="md:col-span-2">
+                <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-widest">Nombre y Apellido</label>
+                <input
+                  type="text"
+                  required
+                  className="w-full rounded-lg border-slate-300 shadow-xs focus:border-brand-blue-600 focus:ring-brand-blue-600 text-sm py-2 px-3 bg-white"
+                  value={editForm.displayName}
+                  onChange={e => setEditForm({...editForm, displayName: e.target.value})}
+                  placeholder="Tu nombre y apellido"
+                />
+              </div>
               {isProfessional && (
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-widest">Especialidad principal</label>

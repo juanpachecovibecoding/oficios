@@ -3,7 +3,7 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { UserProfile } from '../types';
-import { Star, MapPin } from 'lucide-react';
+import { Star, MapPin, Compass, AlertTriangle } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -27,7 +27,7 @@ function deg2rad(deg: number) {
 }
 
 export function MapView() {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const job = searchParams.get('job');
   const zone = searchParams.get('zone');
   const lat = parseFloat(searchParams.get('lat') || '0');
@@ -37,6 +37,9 @@ export function MapView() {
   const [professionals, setProfessionals] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeMarkerId, setActiveMarkerId] = useState<string | null>(null);
+  
+  const [locating, setLocating] = useState(false);
+  const [gpsError, setGpsError] = useState<string | null>(null);
 
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
@@ -44,8 +47,53 @@ export function MapView() {
 
   const center = useMemo(() => {
     if (lat && lng) return { lat, lng };
-    return { lat: -34.6037, lng: -58.3816 }; // Buenos Aires default
+    return { lat: -31.6107, lng: -60.6973 }; // Santa Fe default
   }, [lat, lng]);
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      setGpsError('La geolocalización no está soportada por tu navegador.');
+      return;
+    }
+
+    setLocating(true);
+    setGpsError(null);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        setLocating(false);
+        
+        setSearchParams(prev => {
+          const next = new URLSearchParams(prev);
+          next.set('lat', String(userLat));
+          next.set('lng', String(userLng));
+          next.set('zone', 'Ubicación actual');
+          return next;
+        });
+      },
+      (error) => {
+        setLocating(false);
+        console.error('Error obtaining GPS position:', error);
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            setGpsError('Permiso denegado. Activa los permisos de ubicación en tu navegador.');
+            break;
+          case error.POSITION_UNAVAILABLE:
+            setGpsError('La información de tu ubicación no está disponible actualmente.');
+            break;
+          case error.TIMEOUT:
+            setGpsError('Se agotó el tiempo para obtener tu ubicación.');
+            break;
+          default:
+            setGpsError('Ocurrió un error al intentar obtener tu ubicación.');
+            break;
+        }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
 
   // Clean up map instance on unmount
   useEffect(() => {
@@ -180,29 +228,56 @@ export function MapView() {
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
       {/* Header bar */}
-      <div className="bg-white border-b border-slate-200 px-4 py-3 flex flex-wrap items-center justify-between gap-4 z-10 shadow-sm">
-        <div>
-          <h2 className="text-lg font-sans font-extrabold text-slate-950">
-            {job ? `Buscando: ${job}` : 'Todos los profesionales'} {zone && `en ${zone}`}
-          </h2>
-          <p className="text-xs text-slate-500 font-medium">{professionals.length} resultados encontrados</p>
-        </div>
-        
-        <div className="flex items-center space-x-2">
-          <span className="text-xs font-bold text-slate-600 uppercase tracking-wider">Radio de búsqueda:</span>
-          {[1, 3, 5, 10].map(r => (
-            <button
-              key={r}
-              onClick={() => setRadius(r)}
-              className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
-                radius === r 
-                  ? 'bg-blue-600 text-white shadow-xs' 
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
+      <div className="bg-white border-b border-slate-200 px-4 py-3 flex flex-col gap-3 z-10 shadow-sm">
+        {gpsError && (
+          <div className="flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 px-4 py-2.5 rounded-xl text-xs font-semibold animate-fade-in">
+            <AlertTriangle className="w-4 h-4 text-red-500 shrink-0" />
+            <span className="flex-grow">{gpsError}</span>
+            <button 
+              onClick={() => setGpsError(null)} 
+              className="text-red-500 hover:text-red-700 font-bold ml-2 text-sm cursor-pointer"
             >
-              {r} km
+              &times;
             </button>
-          ))}
+          </div>
+        )}
+
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-sans font-extrabold text-slate-950">
+              {job ? `Buscando: ${job}` : 'Todos los profesionales'} {zone && `en ${zone}`}
+            </h2>
+            <p className="text-xs text-slate-500 font-medium">{professionals.length} resultados encontrados</p>
+          </div>
+          
+          <div className="flex flex-wrap items-center gap-3">
+            {/* GPS locate button */}
+            <button
+              onClick={handleGetCurrentLocation}
+              disabled={locating}
+              className={`inline-flex items-center gap-2 bg-brand-blue-900 hover:bg-brand-blue-950 text-white px-4 py-2.5 rounded-xl text-xs font-bold tracking-wide transition-all shadow-xs cursor-pointer disabled:opacity-70`}
+            >
+              <Compass className={`w-4 h-4 text-brand-gold-400 ${locating ? 'animate-spin' : ''}`} />
+              {locating ? 'Ubicando...' : 'Buscar desde mi ubicación actual'}
+            </button>
+
+            <div className="flex items-center space-x-2 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-100">
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-1">Radio:</span>
+              {[1, 3, 5, 10].map(r => (
+                <button
+                  key={r}
+                  onClick={() => setRadius(r)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+                    radius === r 
+                      ? 'bg-blue-600 text-white shadow-xs' 
+                      : 'bg-transparent text-slate-600 hover:bg-slate-200/60'
+                  }`}
+                >
+                  {r} km
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
