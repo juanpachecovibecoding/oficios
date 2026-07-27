@@ -75,10 +75,14 @@ function compressAndResizeImage(file: File, maxWidth: number, maxHeight: number,
 
 export function getYouTubeEmbedUrl(url: string): string {
   if (!url) return '';
+  // Extract only the 11-char video ID and build a clean embed URL
+  // without any extra query params (prevents clickjacking via autoplay, controls=0, etc.)
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
   if (match && match[2].length === 11) {
-    return `https://www.youtube.com/embed/${match[2]}`;
+    // Only whitelist the video ID — no extra params forwarded
+    const videoId = encodeURIComponent(match[2]);
+    return `https://www.youtube.com/embed/${videoId}`;
   }
   return '';
 }
@@ -234,12 +238,15 @@ export function Dashboard() {
         lng = editPlace.lng;
       }
 
+      // SECURITY FIX (LOW-3): Do NOT include 'status' in the update payload.
+      // A rejected user could previously re-activate their account by saving their profile.
+      // The status field is protected by Firestore Rules and should only be changed by admins.
       await setDoc(doc(db, 'users', currentUser.uid), {
         ...userProfile,
         ...editForm,
         lat,
         lng,
-        status: 'active'
+        // 'status' intentionally omitted — only admins can change it via AdminPanel
       }, { merge: true });
 
       await refreshProfile();

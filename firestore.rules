@@ -1,17 +1,79 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && (request.auth.uid == userId || request.auth.token.email == 'juanpacheco@playcode.com.ar');
-      allow delete: if request.auth != null && request.auth.token.email == 'juanpacheco@playcode.com.ar';
+
+    // ─── Helpers ────────────────────────────────────────────────────────────
+    // Campos que el propio usuario NUNCA puede modificar (solo el superadmin)
+    function touchesSensitiveFields() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+        .hasAny(['role', 'status', 'rating', 'reviewCount', 'uid', 'email']);
     }
+
+    function isSuperAdmin() {
+      return request.auth != null &&
+        request.auth.token.email == 'juanpacheco@playcode.com.ar';
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // ─── Usuarios ────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Solo usuarios autenticados pueden leer perfiles (cierra la exposición masiva de PII)
+      allow read: if isAuthenticated();
+
+      // Crear: únicamente el propio usuario; el rol debe ser client/professional
+      // y el estado inicial siempre es "pending" (nunca puede auto-activarse)
+      allow create: if isAuthenticated()
+        && request.auth.uid == userId
+        && request.resource.data.role in ['client', 'professional']
+        && request.resource.data.status == 'pending'
+        && request.resource.data.uid == request.auth.uid;
+
+      // Actualizar:
+      //   • El propio usuario puede editar su perfil PERO no puede tocar
+      //     role, status, rating, reviewCount, uid ni email.
+      //   • El superadmin puede cambiar cualquier campo.
+      allow update: if isAuthenticated() && (
+        (request.auth.uid == userId && !touchesSensitiveFields())
+        || isSuperAdmin()
+      );
+
+      // Eliminar: solo el superadmin
+      allow delete: if isSuperAdmin();
+    }
+
+    // ─── Reseñas ─────────────────────────────────────────────────────────────
     match /reviews/{reviewId} {
-      allow read: if true;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null && request.auth.uid == resource.data.reviewerId;
-      allow delete: if request.auth != null && (request.auth.uid == resource.data.reviewerId || request.auth.token.email == 'juanpacheco@playcode.com.ar');
+      // Solo usuarios autenticados pueden leer reseñas
+      allow read: if isAuthenticated();
+
+      // Crear: el usuario autenticado debe ser el reviewer,
+      // los puntajes deben estar entre 1 y 5,
+      // y no puede reseñarse a sí mismo.
+      allow create: if isAuthenticated()
+        && request.auth.uid == request.resource.data.reviewerId
+        && request.resource.data.professionalId != request.auth.uid
+        && request.resource.data.technicalScore  >= 1
+        && request.resource.data.technicalScore  <= 5
+        && request.resource.data.punctualityScore >= 1
+        && request.resource.data.punctualityScore <= 5
+        && request.resource.data.respectScore    >= 1
+        && request.resource.data.respectScore    <= 5;
+
+      // Actualizar: solo el autor de la reseña puede editarla,
+      // y no puede cambiar a quién va dirigida ni quién la escribió
+      allow update: if isAuthenticated()
+        && request.auth.uid == resource.data.reviewerId
+        && request.resource.data.reviewerId     == resource.data.reviewerId
+        && request.resource.data.professionalId == resource.data.professionalId;
+
+      // Eliminar: el autor o el superadmin
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == resource.data.reviewerId
+        || isSuperAdmin()
+      );
     }
   }
 }

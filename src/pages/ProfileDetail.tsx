@@ -52,10 +52,14 @@ function compressAndResizeImage(file: File, maxWidth: number, maxHeight: number,
 
 export function getYouTubeEmbedUrl(url: string): string {
   if (!url) return '';
+  // Extract only the 11-char video ID and build a clean embed URL
+  // without any extra query params (prevents clickjacking via autoplay, controls=0, etc.)
   const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
   const match = url.match(regExp);
   if (match && match[2].length === 11) {
-    return `https://www.youtube.com/embed/${match[2]}`;
+    // Only whitelist the video ID — no extra params forwarded
+    const videoId = encodeURIComponent(match[2]);
+    return `https://www.youtube.com/embed/${videoId}`;
   }
   return '';
 }
@@ -218,19 +222,18 @@ export function ProfileDetail() {
         createdAt: serverTimestamp()
       };
       await addDoc(collection(db, 'reviews'), newReview);
-      
-      // Update pro rating average (simplified approach)
+
+      // SECURITY FIX (HIGH-1): The rating/reviewCount fields on the user document
+      // are now protected by Firestore Rules — no client can write them directly.
+      // Rating recalculation should be handled by a Firebase Cloud Function
+      // triggered on new review creation (onDocumentCreated in 'reviews' collection).
+      // The local UI state is updated optimistically for a smooth UX.
       const newCount = (pro.reviewCount || 0) + 1;
       const newTotal = ((pro.rating || 0) * (pro.reviewCount || 0)) + overall;
       const newAvg = newTotal / newCount;
-      
-      await updateDoc(doc(db, 'users', pro.uid), {
-        rating: newAvg,
-        reviewCount: newCount
-      });
-      
-      alert("¡Reseña publicada con éxito!");
-      // Reload page to reflect changes
+      setPro(prev => prev ? { ...prev, rating: newAvg, reviewCount: newCount } : prev);
+
+      alert("¡Reseña publicada con éxito! El puntaje se actualizará en breve.");
       window.location.reload();
     } catch (err) {
       console.error(err);
