@@ -6,8 +6,6 @@ import { signInWithPopup, signOut } from 'firebase/auth';
 import { Menu, X, HeartHandshake } from 'lucide-react';
 import { cn } from '../lib/utils';
 
-const logoImg = '/logo.jpg';
-
 export function Navbar() {
   const { currentUser, userProfile, isLoginModalOpen, setIsLoginModalOpen } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
@@ -29,9 +27,9 @@ export function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden border border-brand-gold-200/80 shadow-xs bg-brand-blue-900 flex items-center justify-center shrink-0">
-                <img src={logoImg} alt="Oficios Cristianos Logo" className="w-full h-full object-cover" />
+            <Link to="/" className="flex items-center space-x-3 group">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-blue-900 via-brand-blue-950 to-slate-900 rounded-xl flex items-center justify-center border border-brand-gold-300/70 shadow-xs group-hover:scale-105 transition-all shrink-0">
+                <HeartHandshake className="w-5 h-5 text-brand-gold-200" />
               </div>
               <span className="text-xl font-extrabold tracking-tight text-brand-blue-900 font-sans">Oficios Cristianos</span>
               <span className="hidden sm:inline-block text-[10px] font-extrabold px-2.5 py-0.5 bg-brand-blue-50 text-brand-blue-600 rounded-full uppercase tracking-wider">Argentina</span>
@@ -124,8 +122,8 @@ export function Navbar() {
 
             {/* Modal Logo & Header */}
             <div className="text-center mb-6">
-              <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-brand-gold-200 mx-auto mb-4 shadow-md bg-brand-blue-900 flex items-center justify-center shrink-0">
-                <img src={logoImg} alt="Oficios Cristianos Logo" className="w-full h-full object-cover" />
+              <div className="w-16 h-16 bg-gradient-to-br from-brand-blue-900 via-brand-blue-950 to-slate-900 rounded-2xl flex items-center justify-center border-2 border-brand-gold-300/80 mx-auto mb-4 shadow-md shrink-0">
+                <HeartHandshake className="w-8 h-8 text-brand-gold-200" />
               </div>
               <h3 className="text-2xl font-serif font-bold text-brand-blue-900 mb-2">Ingresar a la Plataforma</h3>
               <p className="text-slate-500 text-sm leading-relaxed">
