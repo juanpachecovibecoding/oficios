@@ -781,7 +781,9 @@ export function Dashboard() {
                     <Compass className="w-5 h-5 text-brand-blue-600 shrink-0 mt-0.5" />
                     <div>
                       <span className="block text-[10px] text-slate-400 uppercase tracking-widest font-bold">Modalidad y Cobertura</span>
-                      <span className="font-medium text-slate-800">{userProfile.modality || 'A domicilio'}</span>
+                      <span className="font-medium text-slate-800">
+                        {userProfile.modality === 'Ambos' ? 'A domicilio y Taller propio' : (userProfile.modality || 'A domicilio')}
+                      </span>
                       <span className="block text-xs text-slate-500 mt-0.5">Radio de servicio: {userProfile.coverageRadius} km</span>
                     </div>
                   </div>

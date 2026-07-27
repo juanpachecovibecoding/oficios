@@ -403,10 +403,21 @@ export function ProfileDetail() {
                 </div>
               </li>
               <li className="flex items-start gap-3">
-                {pro.modality === 'Taller propio' ? <Home className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" /> : <Truck className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />}
+                {pro.modality === 'Ambos' ? (
+                  <div className="flex gap-1 shrink-0 mt-1">
+                    <Truck className="w-4 h-4 text-slate-400" />
+                    <Home className="w-4 h-4 text-slate-400" />
+                  </div>
+                ) : pro.modality === 'Taller propio' ? (
+                  <Home className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                ) : (
+                  <Truck className="w-5 h-5 text-slate-400 shrink-0 mt-0.5" />
+                )}
                 <div>
                   <span className="block font-bold text-slate-900 text-xs uppercase tracking-wider">Modalidad</span>
-                  <span className="text-slate-700 font-medium">{pro.modality}</span>
+                  <span className="text-slate-700 font-medium">
+                    {pro.modality === 'Ambos' ? 'A domicilio y Taller propio' : pro.modality}
+                  </span>
                 </div>
               </li>
               <li className="flex items-start gap-3">
