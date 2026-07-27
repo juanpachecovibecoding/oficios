@@ -109,7 +109,7 @@ export function Trainings() {
           Capacitación & Tecnología para la Comunidad
         </h1>
         <p className="text-lg text-slate-600 max-w-3xl mx-auto leading-relaxed mb-8">
-          Acompañamos a iglesias locales y profesionales de oficios para que aprendan a utilizar herramientas tecnológicas de vanguardia e **Inteligencia Artificial** aplicada a su trabajo diario.
+          Acompañamos a iglesias locales y profesionales de oficios para que aprendan a utilizar herramientas tecnológicas de vanguardia e Inteligencia Artificial aplicada a su trabajo diario.
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4">
