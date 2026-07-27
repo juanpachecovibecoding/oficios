@@ -1061,38 +1061,13 @@ export function ProfileDetail() {
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-emerald-150 bg-emerald-50 hover:bg-emerald-100 text-emerald-850 transition-colors cursor-pointer text-sm font-bold no-underline"
+                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-emerald-150 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 transition-colors cursor-pointer text-sm font-bold no-underline"
                 >
-                  <span className="text-lg">💬</span>
+                  <svg className="w-5 h-5 fill-emerald-600 shrink-0" viewBox="0 0 24 24">
+                    <path d="M12.031 2c-5.506 0-9.97 4.46-9.97 9.958 0 1.758.459 3.474 1.33 4.988L2 22l5.239-1.371a9.907 9.907 0 0 0 4.79 1.232h.004c5.502 0 9.967-4.46 9.967-9.958 0-2.662-1.037-5.164-2.92-7.049C17.18 3.033 14.683 2 12.031 2zm6.924 14.151c-.302.85-1.485 1.561-2.032 1.637-.506.07-1.168.082-2.587-.492-2.316-.94-3.791-3.272-3.906-3.422-.114-.15-1.01-1.339-1.01-2.551 0-1.212.637-1.81.864-2.057.227-.247.499-.309.664-.309.166 0 .332.006.476.012.149.006.349-.057.546.417.199.483.679 1.658.739 1.78.061.121.101.263.02.422-.081.16-.121.26-.241.402-.121.142-.254.316-.363.424-.121.121-.247.253-.107.493.139.24.62 1.018 1.328 1.648.913.812 1.683 1.066 1.921 1.187.239.121.377.101.517-.061.141-.162.6-1.002.76-1.343.16-.34.32-.284.54-.204.22.08 1.396.658 1.636.778.24.121.398.181.458.283.06.103.06.597-.242 1.447z" />
+                  </svg>
                   <span>WhatsApp</span>
                 </a>
-
-                {/* Facebook */}
-                <a
-                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-                    `${window.location.origin}/profile/${pro.uid}`
-                  )}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-blue-150 bg-blue-50 hover:bg-blue-100 text-blue-850 transition-colors cursor-pointer text-sm font-bold no-underline"
-                >
-                  <span className="text-lg">📘</span>
-                  <span>Facebook</span>
-                </a>
-
-                {/* Instagram Note/Copier */}
-                <button
-                  onClick={() => {
-                    const shareUrl = `${window.location.origin}/profile/${pro.uid}`;
-                    navigator.clipboard.writeText(shareUrl);
-                    setCopied(true);
-                    setTimeout(() => setCopied(false), 3000);
-                  }}
-                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-pink-150 bg-pink-50 hover:bg-pink-100 text-pink-850 transition-colors cursor-pointer text-sm font-bold text-left"
-                >
-                  <span className="text-lg">📸</span>
-                  <span>Copiar para Ig</span>
-                </button>
 
                 {/* Copy Link general */}
                 <button
