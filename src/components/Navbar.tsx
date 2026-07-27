@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { Menu, X, HeartHandshake, Hammer, Paintbrush } from 'lucide-react';
+import { Menu, X, HeartHandshake } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 export function Navbar() {
@@ -29,7 +29,27 @@ export function Navbar() {
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
               <div className="w-9 h-9 bg-brand-blue-900 rounded-lg flex items-center justify-center border border-brand-gold-200 shadow-xs">
-                <Hammer className="w-4 h-4 text-brand-gold-200 transform -rotate-12" />
+                {/* Combined hammer + paintbrush — open source MIT inline SVG */}
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-5 h-5 text-brand-gold-200"
+                >
+                  {/* Hammer */}
+                  <path d="M15 4l-8 8" />
+                  <path d="M11 4h4v4" />
+                  <path d="M6 13l-2.5 2.5a1.5 1.5 0 0 0 2 2L8 15" />
+                  {/* Paintbrush */}
+                  <path d="M9 3l9.5 9.5" />
+                  <path d="M17 8l1.5 1.5" />
+                  <path d="M14.5 17c0 1.5-1 3-3 3s-1.5-2.5-1.5-2.5L14.5 17z" />
+                  <path d="M18.5 5.5L19 5a1 1 0 0 0-1.5-1.5l-.5.5" />
+                </svg>
               </div>
               <span className="text-xl font-extrabold tracking-tight text-brand-blue-900 font-sans">Oficios Cristianos</span>
               <span className="hidden sm:inline-block text-[10px] font-extrabold px-2.5 py-0.5 bg-brand-blue-50 text-brand-blue-600 rounded-full uppercase tracking-wider">Argentina</span>
@@ -123,7 +143,24 @@ export function Navbar() {
             {/* Modal Logo & Header */}
             <div className="text-center mb-6">
               <div className="w-14 h-14 bg-brand-blue-900 rounded-xl flex items-center justify-center border border-brand-gold-200 mx-auto mb-4 shadow-md">
-                <Hammer className="w-6 h-6 text-brand-gold-200 transform -rotate-12" />
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.75"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-7 h-7 text-brand-gold-200"
+                >
+                  <path d="M15 4l-8 8" />
+                  <path d="M11 4h4v4" />
+                  <path d="M6 13l-2.5 2.5a1.5 1.5 0 0 0 2 2L8 15" />
+                  <path d="M9 3l9.5 9.5" />
+                  <path d="M17 8l1.5 1.5" />
+                  <path d="M14.5 17c0 1.5-1 3-3 3s-1.5-2.5-1.5-2.5L14.5 17z" />
+                  <path d="M18.5 5.5L19 5a1 1 0 0 0-1.5-1.5l-.5.5" />
+                </svg>
               </div>
               <h3 className="text-2xl font-serif font-bold text-brand-blue-900 mb-2">Ingresar a la Plataforma</h3>
               <p className="text-slate-500 text-sm leading-relaxed">
