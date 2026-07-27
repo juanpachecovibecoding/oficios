@@ -615,7 +615,7 @@ export function Dashboard() {
                   onChange={(val) => setEditForm({...editForm, address: val})}
                   onPlaceSelect={setEditPlace}
                   className="w-full rounded-lg border-slate-300 shadow-xs focus:border-brand-blue-600 focus:ring-brand-blue-600 text-sm py-2 px-3 bg-white"
-                  placeholder="Ingresa tu dirección o zona (Ej: Palermo, Buenos Aires)"
+                  placeholder="Ingresa tu dirección o zona (Ej: Santa Fe, Rosario)"
                 />
               </div>
               <div>
@@ -1395,7 +1395,7 @@ export function Dashboard() {
               onChange={(val) => setForm({...form, address: val})}
               onPlaceSelect={setSelectedPlace}
               className="w-full rounded-lg border-slate-300 shadow-xs focus:border-blue-500 focus:ring-blue-500 text-sm py-2 px-3 bg-white"
-              placeholder="Ingresa tu dirección o zona (Ej: Palermo, Buenos Aires)"
+              placeholder="Ingresa tu dirección o zona (Ej: Santa Fe, Rosario)"
             />
           </div>
           <div>

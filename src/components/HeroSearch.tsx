@@ -93,7 +93,7 @@ export function HeroSearch() {
             onChange={setZoneQuery}
             onPlaceSelect={setSelectedPlace}
             className="block w-full pl-11 pr-3 py-3.5 border-0 bg-transparent text-slate-900 focus:ring-0 focus:outline-hidden text-base placeholder:text-slate-400"
-            placeholder="Zona geográfica (Ej: Palermo, Rosario...)"
+            placeholder="Zona geográfica (Ej: Santa Fe, Rosario...)"
           />
 
           <button
