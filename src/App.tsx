@@ -8,6 +8,7 @@ import { MapView } from './pages/MapView';
 import { ProfileDetail } from './pages/ProfileDetail';
 import { Offerings } from './pages/Offerings';
 import { Vision } from './pages/Vision';
+import { Trainings } from './pages/Trainings';
 
 function Home() {
   return (
@@ -87,6 +88,7 @@ export default function App() {
               <Route path="/profile/:id" element={<ProfileDetail />} />
               <Route path="/offerings" element={<Offerings />} />
               <Route path="/vision" element={<Vision />} />
+              <Route path="/capacitaciones" element={<Trainings />} />
             </Routes>
           </main>
           <footer className="bg-slate-900 text-slate-400 py-8 text-center text-sm">
