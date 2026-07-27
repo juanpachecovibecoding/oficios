@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo, useRef } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { UserProfile } from '../types';
@@ -27,6 +27,7 @@ function deg2rad(deg: number) {
 }
 
 export function MapView() {
+  const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const job = searchParams.get('job');
   const zone = searchParams.get('zone');
@@ -156,6 +157,32 @@ export function MapView() {
       mapRef.current.setView([center.lat, center.lng], 12);
     }
   }, [center]);
+
+  // Intercept popup link clicks to trigger client-side React Router navigation
+  // instead of hard page reloads (which can cause 404s on Vercel)
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+    
+    const handlePopupClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const profileLink = target.closest('a[href^="/profile/"]');
+      if (profileLink) {
+        e.preventDefault();
+        const href = profileLink.getAttribute('href');
+        if (href) {
+          navigate(href);
+        }
+      }
+    };
+
+    const container = map.getContainer();
+    container.addEventListener('click', handlePopupClick);
+
+    return () => {
+      container.removeEventListener('click', handlePopupClick);
+    };
+  }, [navigate]);
 
     // Update Markers inside Leaflet Map
     useEffect(() => {
