@@ -4,9 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { auth, googleProvider } from '../firebase';
 import { signInWithPopup, signOut } from 'firebase/auth';
 import { Menu, X, HeartHandshake } from 'lucide-react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faScrewdriverWrench } from '@fortawesome/free-solid-svg-icons';
 import { cn } from '../lib/utils';
+
+const logoImg = '/logo.jpg';
 
 export function Navbar() {
   const { currentUser, userProfile, isLoginModalOpen, setIsLoginModalOpen } = useAuth();
@@ -30,8 +30,8 @@ export function Navbar() {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
-              <div className="w-9 h-9 bg-brand-blue-900 rounded-lg flex items-center justify-center border border-brand-gold-200 shadow-xs">
-                <FontAwesomeIcon icon={faScrewdriverWrench} className="w-4 h-4 text-brand-gold-200" />
+              <div className="w-10 h-10 rounded-xl overflow-hidden border border-brand-gold-200/80 shadow-xs bg-brand-blue-900 flex items-center justify-center shrink-0">
+                <img src={logoImg} alt="Oficios Cristianos Logo" className="w-full h-full object-cover" />
               </div>
               <span className="text-xl font-extrabold tracking-tight text-brand-blue-900 font-sans">Oficios Cristianos</span>
               <span className="hidden sm:inline-block text-[10px] font-extrabold px-2.5 py-0.5 bg-brand-blue-50 text-brand-blue-600 rounded-full uppercase tracking-wider">Argentina</span>
@@ -124,8 +124,8 @@ export function Navbar() {
 
             {/* Modal Logo & Header */}
             <div className="text-center mb-6">
-              <div className="w-14 h-14 bg-brand-blue-900 rounded-xl flex items-center justify-center border border-brand-gold-200 mx-auto mb-4 shadow-md">
-                <FontAwesomeIcon icon={faScrewdriverWrench} className="w-6 h-6 text-brand-gold-200" />
+              <div className="w-16 h-16 rounded-2xl overflow-hidden border-2 border-brand-gold-200 mx-auto mb-4 shadow-md bg-brand-blue-900 flex items-center justify-center shrink-0">
+                <img src={logoImg} alt="Oficios Cristianos Logo" className="w-full h-full object-cover" />
               </div>
               <h3 className="text-2xl font-serif font-bold text-brand-blue-900 mb-2">Ingresar a la Plataforma</h3>
               <p className="text-slate-500 text-sm leading-relaxed">
