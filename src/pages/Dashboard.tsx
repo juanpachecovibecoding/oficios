@@ -73,6 +73,16 @@ function compressAndResizeImage(file: File, maxWidth: number, maxHeight: number,
   });
 }
 
+export function getYouTubeEmbedUrl(url: string): string {
+  if (!url) return '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    return `https://www.youtube.com/embed/${match[2]}`;
+  }
+  return '';
+}
+
 const OFICIOS = [
   'Electricidad', 'Plomería', 'Gasista Matriculado', 'Carpintería',
   'Pintura', 'Refrigeración', 'Costura', 'Jardinería', 'Albañilería',
@@ -113,7 +123,8 @@ export function Dashboard() {
     modality: 'A domicilio',
     coverageRadius: 5,
     photoURL: '',
-    bannerURL: ''
+    bannerURL: '',
+    videoURL: ''
   });
   const [editPlace, setEditPlace] = useState<PlaceResult | null>(null);
 
@@ -198,7 +209,8 @@ export function Dashboard() {
         modality: userProfile.modality || 'A domicilio',
         coverageRadius: userProfile.coverageRadius || 5,
         photoURL: userProfile.photoURL || currentUser.photoURL || '',
-        bannerURL: userProfile.bannerURL || ''
+        bannerURL: userProfile.bannerURL || '',
+        videoURL: userProfile.videoURL || ''
       });
       setEditPlace(userProfile.lat && userProfile.lng ? {
         lat: userProfile.lat,
@@ -665,6 +677,56 @@ export function Dashboard() {
                       value={editForm.coverageRadius}
                       onChange={e => setEditForm({...editForm, coverageRadius: parseInt(e.target.value) || 0})}
                     />
+                  </div>
+                  
+                  <div className="md:col-span-2 p-5 bg-blue-50/40 rounded-2xl border border-blue-100/60 space-y-3.5">
+                    <div>
+                      <label className="block text-xs font-bold text-slate-800 mb-1 uppercase tracking-widest flex items-center gap-1.5">
+                        <Sparkles className="w-4 h-4 text-blue-600 animate-pulse" />
+                        Video de Presentación Personal (YouTube)
+                      </label>
+                      <span className="block text-[10px] text-slate-500 font-medium">
+                        Recomendamos un video corto de hasta <strong>45 segundos</strong> donde te presentes ante los clientes de la comunidad. (No es obligatorio, pero ayuda muchísimo a generar confianza).
+                      </span>
+                    </div>
+
+                    <div className="flex gap-3">
+                      <div className="flex-grow">
+                        <input
+                          type="text"
+                          className="w-full rounded-lg border-slate-300 shadow-xs focus:border-brand-blue-600 focus:ring-brand-blue-600 text-sm py-2 px-3 bg-white"
+                          value={editForm.videoURL}
+                          onChange={e => setEditForm({...editForm, videoURL: e.target.value})}
+                          placeholder="Ej: https://www.youtube.com/watch?v=..."
+                        />
+                      </div>
+                      {editForm.videoURL && (
+                        <button
+                          type="button"
+                          onClick={() => setEditForm({...editForm, videoURL: ''})}
+                          className="bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold px-3 py-2 rounded-lg text-xs tracking-wider transition-all cursor-pointer"
+                        >
+                          Limpiar
+                        </button>
+                      )}
+                    </div>
+
+                    {editForm.videoURL && getYouTubeEmbedUrl(editForm.videoURL) ? (
+                      <div className="mt-3">
+                        <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">Previsualización de tu Video:</span>
+                        <div className="aspect-video w-full max-w-lg mx-auto rounded-xl overflow-hidden border border-slate-200 shadow-md">
+                          <iframe
+                            className="w-full h-full"
+                            src={getYouTubeEmbedUrl(editForm.videoURL)}
+                            title="Video de Presentación"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          ></iframe>
+                        </div>
+                      </div>
+                    ) : editForm.videoURL ? (
+                      <p className="text-[10px] text-red-600 font-bold italic">⚠️ Formato de enlace de YouTube no reconocido. Asegurate de copiarlo desde la barra de direcciones o la opción Compartir.</p>
+                    ) : null}
                   </div>
                 </>
               )}

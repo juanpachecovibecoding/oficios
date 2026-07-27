@@ -50,6 +50,16 @@ function compressAndResizeImage(file: File, maxWidth: number, maxHeight: number,
   });
 }
 
+export function getYouTubeEmbedUrl(url: string): string {
+  if (!url) return '';
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+  const match = url.match(regExp);
+  if (match && match[2].length === 11) {
+    return `https://www.youtube.com/embed/${match[2]}`;
+  }
+  return '';
+}
+
 const PRESET_BANNERS = [
   { name: 'Carpintería', url: 'https://images.unsplash.com/photo-1504148455328-c376907d081c?auto=format&fit=crop&q=60&w=600' },
   { name: 'Herramientas', url: 'https://images.unsplash.com/photo-1581094288338-2314dddb7ecc?auto=format&fit=crop&q=60&w=600' },
@@ -482,6 +492,29 @@ export function ProfileDetail() {
               </div>
             )}
           </div>
+
+          {/* Video de Presentación Personal */}
+          {pro.videoURL && getYouTubeEmbedUrl(pro.videoURL) && (
+            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
+              <h3 className="font-sans text-xl font-bold text-slate-900 flex items-center gap-2">
+                <Sparkles className="w-5 h-5 text-blue-600 animate-pulse" />
+                Video de Presentación
+              </h3>
+              <p className="text-xs text-slate-500 -mt-2">
+                Conocé personalmente a {pro.displayName} en este breve video de presentación.
+              </p>
+              
+              <div className="aspect-video w-full max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-lg border border-slate-100 bg-slate-50">
+                <iframe
+                  className="w-full h-full"
+                  src={getYouTubeEmbedUrl(pro.videoURL)}
+                  title={`Video de presentación de ${pro.displayName}`}
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                ></iframe>
+              </div>
+            </div>
+          )}
 
           {/* Antes y Después de Trabajos */}
           {pro.beforeAfterProjects && pro.beforeAfterProjects.length > 0 && (

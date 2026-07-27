@@ -32,6 +32,7 @@ export interface UserProfile {
   portfolio?: string[]; // array of image urls
   bannerURL?: string;
   beforeAfterProjects?: BeforeAfterProject[];
+  videoURL?: string;
 }
 
 export interface BeforeAfterProject {
