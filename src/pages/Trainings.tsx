@@ -153,7 +153,7 @@ export function Trainings() {
             <p className="text-xs text-slate-300 mb-4">Financiado por el 30% del fondo comunitario para trabajadores de escasos recursos.</p>
             <button
               onClick={() => setModalType('church')}
-              className="w-full py-2.5 bg-brand-gold-400 hover:bg-brand-gold-300 text-brand-blue-950 font-bold rounded-lg text-xs uppercase tracking-wider transition-colors cursor-pointer"
+              className="w-full py-2.5 bg-brand-blue-900 hover:bg-brand-blue-950 text-white border border-brand-gold-300/40 font-bold rounded-lg text-xs uppercase tracking-wider transition-all cursor-pointer shadow-xs"
             >
               Coordinar Taller
             </button>
