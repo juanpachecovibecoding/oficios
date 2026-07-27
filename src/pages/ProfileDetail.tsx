@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { db, auth } from '../firebase';
 import { doc, getDoc, collection, query, where, getDocs, addDoc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { UserProfile, Review } from '../types';
-import { ShieldCheck, MapPin, Clock, Truck, Home, Phone, Star, CheckCircle, Trash2, Camera, Upload, X, ArrowLeft, ChevronLeft, ChevronRight, Award, Sliders, Calendar, Sparkles } from 'lucide-react';
+import { ShieldCheck, MapPin, Clock, Truck, Home, Phone, Star, CheckCircle, Trash2, Camera, Upload, X, ArrowLeft, ChevronLeft, ChevronRight, Award, Sliders, Calendar, Sparkles, Share2, Copy } from 'lucide-react';
 import ReactBeforeSliderComponent from 'react-before-after-slider-component';
 import 'react-before-after-slider-component/dist/build.css';
 import { useAuth } from '../contexts/AuthContext';
@@ -78,6 +78,10 @@ export function ProfileDetail() {
   const [pro, setPro] = useState<UserProfile | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Share profile states
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Banner editing states
   const [showBannerModal, setShowBannerModal] = useState(false);
@@ -284,34 +288,44 @@ export function ProfileDetail() {
               </div>
             </div>
             
-            {!hasCompletedProfile ? (
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto md:mb-2 shrink-0">
               <button
-                disabled
-                className="flex items-center justify-center gap-2 bg-slate-100 text-slate-400 border border-slate-200 px-8 py-3.5 rounded-xl font-bold md:mb-2 w-full md:w-auto cursor-not-allowed text-sm"
+                onClick={() => setShowShareModal(true)}
+                className="flex items-center justify-center gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-100 px-6 py-3.5 rounded-xl font-bold transition-all w-full sm:w-auto text-sm cursor-pointer"
               >
-                <Phone className="w-5 h-5" />
-                <span>Contacto Reservado</span>
+                <Share2 className="w-5 h-5 text-blue-600" />
+                <span>Compartir Perfil</span>
               </button>
-            ) : !isActiveUser ? (
-              <button
-                disabled
-                className="flex items-center justify-center gap-2 bg-slate-100 text-slate-500 border border-slate-200 px-8 py-3.5 rounded-xl font-bold md:mb-2 w-full md:w-auto cursor-not-allowed text-sm"
-                title="Debe estar activo para contactar"
-              >
-                <Phone className="w-5 h-5 text-slate-400" />
-                <span>Contacto Bloqueado (Pendiente)</span>
-              </button>
-            ) : (
-              <a 
-                href={`https://wa.me/${pro.phone?.replace(/[^0-9]/g, '')}?text=${whatsappMessage}`}
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all md:mb-2 w-full md:w-auto text-sm"
-              >
-                <Phone className="w-5 h-5" />
-                <span>Contactar por WhatsApp</span>
-              </a>
-            )}
+
+              {!hasCompletedProfile ? (
+                <button
+                  disabled
+                  className="flex items-center justify-center gap-2 bg-slate-100 text-slate-400 border border-slate-200 px-8 py-3.5 rounded-xl font-bold w-full sm:w-auto cursor-not-allowed text-sm"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>Contacto Reservado</span>
+                </button>
+              ) : !isActiveUser ? (
+                <button
+                  disabled
+                  className="flex items-center justify-center gap-2 bg-slate-100 text-slate-500 border border-slate-200 px-8 py-3.5 rounded-xl font-bold w-full sm:w-auto cursor-not-allowed text-sm"
+                  title="Debe estar activo para contactar"
+                >
+                  <Phone className="w-5 h-5 text-slate-400" />
+                  <span>Contacto Bloqueado (Pendiente)</span>
+                </button>
+              ) : (
+                <a 
+                  href={`https://wa.me/${pro.phone?.replace(/[^0-9]/g, '')}?text=${whatsappMessage}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition-all w-full sm:w-auto text-sm"
+                >
+                  <Phone className="w-5 h-5" />
+                  <span>Contactar por WhatsApp</span>
+                </a>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -994,6 +1008,145 @@ export function ProfileDetail() {
                 className="px-5 py-2.5 bg-brand-blue-900 hover:bg-brand-blue-950 text-white font-bold rounded-xl text-xs uppercase tracking-wider transition-all disabled:opacity-50 cursor-pointer shadow-md border border-brand-blue-800"
               >
                 {savingBanner ? 'Guardando...' : 'Guardar Banner'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* SHARE PROFILE MODAL */}
+      {showShareModal && pro && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fade-in">
+          <div className="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md w-full overflow-hidden">
+            <div className="px-6 py-5 border-b border-slate-150 bg-slate-50 flex items-center justify-between">
+              <div>
+                <h3 className="font-sans font-extrabold text-slate-900 text-lg">Compartir Perfil</h3>
+                <p className="text-xs text-slate-500">Promociona este perfil en tus redes sociales</p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  setCopied(false);
+                }}
+                className="text-slate-400 hover:text-slate-600 font-bold text-2xl p-1 cursor-pointer transition-colors"
+              >
+                &times;
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Profile Preview Mini-Card */}
+              <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <img 
+                  src={pro.photoURL} 
+                  alt={pro.displayName} 
+                  className="w-12 h-12 rounded-lg object-cover border border-white shadow-xs" 
+                  referrerPolicy="no-referrer"
+                />
+                <div className="min-w-0 flex-1">
+                  <h4 className="font-extrabold text-slate-950 text-sm truncate">{pro.displayName}</h4>
+                  <p className="text-xs text-blue-700 font-bold tracking-wider uppercase truncate">{pro.specialty}</p>
+                </div>
+              </div>
+
+              {/* Direct share networks */}
+              <div className="grid grid-cols-2 gap-3">
+                {/* WhatsApp */}
+                <a
+                  href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                    `¡Mirá el perfil de ${pro.displayName} en Oficios Cristianos! Es especialista en ${pro.specialty}. Podés ver sus trabajos, experiencia y calificaciones acá:\n\n${window.location.origin}/profile/${pro.uid}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-emerald-150 bg-emerald-50 hover:bg-emerald-100 text-emerald-850 transition-colors cursor-pointer text-sm font-bold no-underline"
+                >
+                  <span className="text-lg">💬</span>
+                  <span>WhatsApp</span>
+                </a>
+
+                {/* Facebook */}
+                <a
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    `${window.location.origin}/profile/${pro.uid}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-blue-150 bg-blue-50 hover:bg-blue-100 text-blue-850 transition-colors cursor-pointer text-sm font-bold no-underline"
+                >
+                  <span className="text-lg">📘</span>
+                  <span>Facebook</span>
+                </a>
+
+                {/* Instagram Note/Copier */}
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/profile/${pro.uid}`;
+                    navigator.clipboard.writeText(shareUrl);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 3000);
+                  }}
+                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-pink-150 bg-pink-50 hover:bg-pink-100 text-pink-850 transition-colors cursor-pointer text-sm font-bold text-left"
+                >
+                  <span className="text-lg">📸</span>
+                  <span>Copiar para Ig</span>
+                </button>
+
+                {/* Copy Link general */}
+                <button
+                  onClick={() => {
+                    const shareUrl = `${window.location.origin}/profile/${pro.uid}`;
+                    navigator.clipboard.writeText(shareUrl);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 3000);
+                  }}
+                  className="flex items-center justify-center gap-2.5 p-3.5 rounded-xl border border-slate-150 bg-slate-50 hover:bg-slate-100 text-slate-800 transition-colors cursor-pointer text-sm font-bold text-left"
+                >
+                  <Copy className="w-4 h-4 text-slate-600 shrink-0" />
+                  <span>{copied ? '¡Copiado!' : 'Copiar Enlace'}</span>
+                </button>
+              </div>
+
+              {/* URL Input Box */}
+              <div className="space-y-1.5 pt-4 border-t border-slate-100">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider">Enlace del perfil</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    readOnly
+                    className="flex-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-600 text-xs py-2.5 px-3 select-all focus:outline-none focus:ring-1 focus:ring-slate-300"
+                    value={`${window.location.origin}/profile/${pro.uid}`}
+                    onClick={(e) => (e.target as HTMLInputElement).select()}
+                  />
+                  <button
+                    onClick={() => {
+                      const shareUrl = `${window.location.origin}/profile/${pro.uid}`;
+                      navigator.clipboard.writeText(shareUrl);
+                      setCopied(true);
+                      setTimeout(() => setCopied(false), 3000);
+                    }}
+                    className="p-2.5 bg-brand-blue-900 text-white rounded-xl hover:bg-brand-blue-950 transition-colors font-bold text-xs flex items-center justify-center cursor-pointer aspect-square shrink-0"
+                    title="Copiar enlace"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </button>
+                </div>
+                {copied && (
+                  <span className="text-[10px] text-emerald-600 font-bold block animate-fade-in mt-1">
+                    ✓ ¡Enlace copiado al portapapeles! Listo para pegar en Instagram, historias o biografías.
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="px-6 py-4 bg-slate-50 border-t border-slate-150 flex justify-end">
+              <button
+                onClick={() => {
+                  setShowShareModal(false);
+                  setCopied(false);
+                }}
+                className="px-5 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-bold rounded-xl tracking-wider uppercase transition-colors cursor-pointer"
+              >
+                Cerrar
               </button>
             </div>
           </div>

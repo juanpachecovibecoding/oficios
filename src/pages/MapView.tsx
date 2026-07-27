@@ -157,73 +157,113 @@ export function MapView() {
     }
   }, [center]);
 
-  // Update Markers inside Leaflet Map
-  useEffect(() => {
-    if (!mapRef.current || !markersGroupRef.current) return;
-
-    markersGroupRef.current.clearLayers();
-
-    // Define beautiful custom markers in Tailwind
-    const proIcon = L.divIcon({
-      html: `<div class="w-8 h-8 bg-blue-600 hover:bg-blue-700 border-2 border-white rounded-full flex items-center justify-center shadow-lg transition-all hover:scale-115">
-               <span class="text-white text-xs">💼</span>
-             </div>`,
-      className: 'custom-pro-marker',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-    });
-
-    const activeProIcon = L.divIcon({
-      html: `<div class="w-10 h-10 bg-emerald-600 border-2 border-white rounded-xl flex items-center justify-center shadow-xl transition-all scale-110">
-               <span class="text-white text-sm">💼</span>
-             </div>`,
-      className: 'custom-active-pro-marker',
-      iconSize: [40, 40],
-      iconAnchor: [20, 20],
-    });
-
-    const centerIcon = L.divIcon({
-      html: `<div class="relative w-8 h-8 flex items-center justify-center">
-               <div class="absolute w-8 h-8 bg-red-400 border border-red-500 rounded-full animate-ping opacity-30"></div>
-               <div class="w-4 h-4 bg-red-600 border-2 border-white rounded-full shadow-md z-10"></div>
-             </div>`,
-      className: 'custom-center-marker',
-      iconSize: [32, 32],
-      iconAnchor: [16, 16],
-    });
-
-    // Add search center pin
-    if (lat !== 0 && lng !== 0) {
-      L.marker([lat, lng], { icon: centerIcon })
-        .addTo(markersGroupRef.current)
-        .bindPopup('<div class="font-sans font-bold text-xs p-1 text-slate-800">Tu punto de búsqueda</div>');
-    }
-
-    // Add professional pins
-    professionals.forEach(pro => {
-      if (!pro.lat || !pro.lng) return;
-      const isActive = activeMarkerId === pro.uid;
-
-      const marker = L.marker([pro.lat, pro.lng], {
-        icon: isActive ? activeProIcon : proIcon
+    // Update Markers inside Leaflet Map
+    useEffect(() => {
+      if (!mapRef.current || !markersGroupRef.current) return;
+  
+      markersGroupRef.current.clearLayers();
+  
+      const centerIcon = L.divIcon({
+        html: `<div class="relative w-8 h-8 flex items-center justify-center">
+                 <div class="absolute w-8 h-8 bg-red-400 border border-red-500 rounded-full animate-ping opacity-30"></div>
+                 <div class="w-4 h-4 bg-red-600 border-2 border-white rounded-full shadow-md z-10"></div>
+               </div>`,
+        className: 'custom-center-marker',
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
       });
+  
+      // Add search center pin
+      if (lat !== 0 && lng !== 0) {
+        L.marker([lat, lng], { icon: centerIcon })
+          .addTo(markersGroupRef.current)
+          .bindPopup('<div class="font-sans font-bold text-xs p-1 text-slate-800">Tu punto de búsqueda</div>');
+      }
+  
+      // Add professional pins with custom photo markers
+      professionals.forEach(pro => {
+        if (!pro.lat || !pro.lng) return;
+        const isActive = activeMarkerId === pro.uid;
+        const photo = pro.photoURL || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&auto=format&fit=crop&q=60';
+  
+        const customProIcon = L.divIcon({
+          html: `
+            <div class="relative flex flex-col items-center justify-center" style="transform: translate(0, -4px);">
+              <!-- Circular avatar with custom border and shadow -->
+              <div class="w-10 h-10 rounded-full border-2 ${isActive ? 'border-blue-600 ring-4 ring-blue-100 scale-110' : 'border-white'} overflow-hidden shadow-md bg-white hover:scale-110 transition-all duration-200 z-10">
+                <img src="${photo}" class="w-full h-full object-cover" referrerpolicy="no-referrer" alt="${pro.displayName}" />
+              </div>
+              <!-- Small pointer arrow at the bottom -->
+              <div class="w-3 h-3 bg-white -mt-1.5 rotate-45 border-r border-b ${isActive ? 'border-blue-600' : 'border-transparent'} shadow-xs z-0"></div>
+            </div>
+          `,
+          className: 'custom-photo-marker',
+          iconSize: [44, 48],
+          iconAnchor: [22, 44],
+        });
+  
+        const marker = L.marker([pro.lat, pro.lng], {
+          icon: customProIcon
+        });
+  
+        marker.on('click', () => {
+          setActiveMarkerId(pro.uid);
+        });
+  
+        marker.bindPopup(`
+          <div class="font-sans flex flex-col p-4 w-[290px] select-none">
+            <div class="flex gap-3 items-start mb-3">
+              <img src="${photo}" class="w-12 h-12 rounded-full object-cover border-2 border-slate-100 shadow-xs shrink-0 bg-slate-50" referrerpolicy="no-referrer" alt="${pro.displayName}" />
+              <div class="min-w-0 flex-grow">
+                <h4 class="font-extrabold text-slate-900 text-sm leading-snug mb-0.5 truncate">${pro.displayName}</h4>
+                <p class="text-[11px] text-blue-700 font-extrabold tracking-wider uppercase truncate">${pro.specialty || 'Servicios'}</p>
+                ${pro.church ? `
+                  <div class="flex items-center gap-1 text-[10px] text-slate-500 font-semibold mt-1">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
+                    <span class="truncate">${pro.church}</span>
+                  </div>
+                ` : ''}
+              </div>
+            </div>
 
-      marker.on('click', () => {
-        setActiveMarkerId(pro.uid);
+            ${pro.rating ? `
+              <div class="flex items-center gap-1.5 mb-3 bg-slate-50 py-1.5 px-3 rounded-xl border border-slate-100/80">
+                <div class="flex text-amber-400 gap-0.5">
+                  ${Array.from({ length: 5 }).map((_, i) => {
+                    const isFilled = i < Math.round(pro.rating || 0);
+                    return `
+                      <svg class="w-3 h-3 ${isFilled ? 'fill-amber-400 text-amber-400' : 'text-slate-200'}" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                      </svg>
+                    `;
+                  }).join('')}
+                </div>
+                <span class="text-xs font-bold text-slate-700">${pro.rating.toFixed(1)}</span>
+                <span class="text-[10px] text-slate-400 font-medium">(${pro.reviewCount || 0} ${pro.reviewCount === 1 ? 'reseña' : 'reseñas'})</span>
+              </div>
+            ` : `
+              <div class="flex items-center gap-1.5 mb-3 bg-slate-50 py-1.5 px-3 rounded-xl border border-slate-100/80 text-[10px] text-slate-400 font-semibold justify-center">
+                Sin reseñas aún
+              </div>
+            `}
+
+            <div class="flex items-start gap-1.5 text-xs text-slate-500 mb-4 leading-relaxed">
+              <svg class="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <span class="truncate max-w-[210px]">${pro.address || 'Sin dirección especificada'}</span>
+            </div>
+
+            <a href="/profile/${pro.uid}" class="block text-center text-xs font-extrabold text-white bg-brand-blue-900 hover:bg-brand-blue-950 py-2.5 px-4 rounded-xl shadow-xs hover:shadow-md transition-all duration-150 tracking-wider uppercase no-underline">
+              Ir al Perfil
+            </a>
+          </div>
+        `);
+  
+        marker.addTo(markersGroupRef.current);
       });
-
-      marker.bindPopup(`
-        <div class="p-1 font-sans">
-          <h4 class="font-extrabold text-slate-900 text-sm leading-tight mb-1">${pro.displayName}</h4>
-          <p class="text-xs text-blue-700 font-bold mb-1">${pro.specialty}</p>
-          <p class="text-[11px] text-slate-500 mb-2 truncate max-w-[200px]">${pro.address}</p>
-          <a href="/profile/${pro.uid}" class="block text-center text-xs font-bold text-white bg-blue-600 py-1.5 px-3 rounded-lg hover:bg-blue-700 transition-colors no-underline">Ver Perfil</a>
-        </div>
-      `);
-
-      marker.addTo(markersGroupRef.current);
-    });
-  }, [professionals, activeMarkerId, lat, lng]);
+    }, [professionals, activeMarkerId, lat, lng]);
 
   return (
     <div className="flex flex-col h-[calc(100vh-64px)]">
