@@ -127,32 +127,37 @@ export function ProfileDetail() {
   const RatingStarsInput = ({ value, onChange, label }: { value: number; onChange: (v: number) => void; label: string }) => {
     const [hoverValue, setHoverValue] = useState<number | null>(null);
     return (
-      <div className="flex flex-col items-center p-3.5 bg-slate-50 border border-slate-100 rounded-xl shadow-xs">
-        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">{label}</span>
-        <div className="flex gap-1.5">
-          {[1, 2, 3, 4, 5].map((star) => {
-            const isFilled = hoverValue !== null ? star <= hoverValue : star <= value;
-            return (
-              <button
-                type="button"
-                key={star}
-                onClick={() => onChange(star)}
-                onMouseEnter={() => setHoverValue(star)}
-                onMouseLeave={() => setHoverValue(null)}
-                className="p-1 hover:scale-125 transition-transform duration-100 focus:outline-none"
-              >
-                <Star
-                  className={`w-6 h-6 transition-colors duration-100 ${
-                    isFilled ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
-                  }`}
-                />
-              </button>
-            );
-          })}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between py-4 gap-3">
+        <div className="flex flex-col">
+          <span className="text-sm font-bold text-slate-800 tracking-wide">{label}</span>
+          <span className="text-[11px] text-slate-400 font-medium">Calificá este aspecto del servicio</span>
         </div>
-        <span className="text-xs font-semibold text-slate-700 mt-2">
-          {value === 5 ? 'Excelente' : value === 4 ? 'Muy bueno' : value === 3 ? 'Bueno' : value === 2 ? 'Regular' : 'Malo'}
-        </span>
+        <div className="flex items-center gap-4">
+          <div className="flex gap-1.5 justify-start">
+            {[1, 2, 3, 4, 5].map((star) => {
+              const isFilled = hoverValue !== null ? star <= hoverValue : star <= value;
+              return (
+                <button
+                  type="button"
+                  key={star}
+                  onClick={() => onChange(star)}
+                  onMouseEnter={() => setHoverValue(star)}
+                  onMouseLeave={() => setHoverValue(null)}
+                  className="p-1 hover:scale-125 transition-transform duration-100 focus:outline-none shrink-0"
+                >
+                  <Star
+                    className={`w-6 h-6 transition-colors duration-100 ${
+                      isFilled ? 'fill-amber-400 text-amber-400' : 'text-slate-200'
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+          <span className="text-xs font-semibold text-slate-500 w-24 text-left">
+            {value === 5 ? 'Excelente' : value === 4 ? 'Muy bueno' : value === 3 ? 'Bueno' : value === 2 ? 'Regular' : 'Malo'}
+          </span>
+        </div>
       </div>
     );
   };
@@ -821,7 +826,7 @@ export function ProfileDetail() {
                 </div>
               ) : auth.currentUser ? (
                 <form onSubmit={handleReviewSubmit} className="space-y-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+                  <div className="flex flex-col divide-y divide-slate-100 border-t border-b border-slate-100">
                     <RatingStarsInput 
                       value={techScore} 
                       onChange={setTechScore} 
